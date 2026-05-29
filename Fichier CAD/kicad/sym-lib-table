@@ -1,0 +1,8 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Lib PCB serrure connecte complet")(type "KiCad")(uri "${KIPRJMOD}/Lib PCB serrure connecte complet.kicad_sym")(options "")(descr ""))
+  (lib (name "Projet verrou")(type "KiCad")(uri "C:/Users/A.D/OneDrive - Collège de Maisonneuve/projet serrure test/Symbole/Projet verrou.kicad_sym")(options "")(descr ""))
+  (lib (name "symbole wifi+cam")(type "KiCad")(uri "C:/Users/A.D/OneDrive - Collège de Maisonneuve/projet tge/Banc de test 1(wifi+caméra)/symbole wifi+cam.kicad_sym")(options "")(descr ""))
+  (lib (name "symbole module annexe")(type "KiCad")(uri "C:/Users/A.D/OneDrive - Collège de Maisonneuve/projet tge/Banc de test 1(wifi+caméra)/symbole module annexe.kicad_sym")(options "")(descr ""))
+  (lib (name "liB SYM")(type "KiCad")(uri "C:/Users/A.D/OneDrive - Collège de Maisonneuve/Documents/Serrure conecté/PCB RFID, temp et proximite/liB SYM.kicad_sym")(options "")(descr ""))
+)
