@@ -21,7 +21,7 @@
 #include "Proxi.h"
 #include "Ecran.h"
 
-// ✅ FIX: #include doivent être au niveau global, jamais dans une fonction
+//  FIX: #include doivent être au niveau global, jamais dans une fonction
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
 
@@ -103,7 +103,7 @@ RTC_DATA_ATTR char last_panic_hint[64] = {0};
 void setup()
 {
   Serial.begin(115200);
-  delay(6000); // ← 6 secondes pour ouvrir le moniteur AVANT le crash suivant
+  delay(6000); // ← 6 secondes pour ouvrir le moniteur
 
   esp_reset_reason_t reason = esp_reset_reason();
   Serial.printf("=== RESET CAUSE: %d ===\n", reason);
@@ -113,7 +113,7 @@ void setup()
     Serial.printf("=== DERNIER CHECKPOINT: %s ===\n", last_panic_hint);
   }
 
-  // Reset le hint
+  // Reset
   strlcpy(last_panic_hint, "setup_start", sizeof(last_panic_hint));
 
   Serial.printf("Heap libre: %d bytes\n", ESP.getFreeHeap());
@@ -239,13 +239,12 @@ void loop()
     int nbr_repetitions = nbr_max_rep / division_rep; // = 10
     uint32_t tag_scanner;
 
-    // ✅ Variable de debug stack — affichage périodique seulement
+    //  Variable de debug stack — affichage périodique seulement
     static uint32_t last_stack_print = 0;
     uint8_t pourcentage_batterie = 1;
 
     while (1)
     {
-      // ✅ FIX: Affichage stack toutes les 5 secondes (pas toutes les 1ms)
       if (millis() - last_stack_print > 5000)
       {
         Serial.printf("Stack libre: %d bytes\n", uxTaskGetStackHighWaterMark(NULL));
@@ -253,7 +252,7 @@ void loop()
       }
 
       bool flag = false;
-      // ✅ Lecture protégée du flag timer
+      // Lecture protégée du flag timer
       portENTER_CRITICAL(&timerMux);
       flag = timerFlag;
       portEXIT_CRITICAL(&timerMux);
@@ -270,7 +269,7 @@ void loop()
         uint16_t FID_scan;
         bool commande_ouverture = digitalRead(Commande_ouverture_porte_pin);
 
-        // ✅ FIX: Snapshot de count avec section critique pour toutes les comparaisons
+        //  Snapshot de count avec section critique pour toutes les comparaisons
         portENTER_CRITICAL(&timerMux);
         int local_count = count;
         portEXIT_CRITICAL(&timerMux);
@@ -329,7 +328,7 @@ void loop()
                 finger.ledOn();
                 ledcWriteTone(PWM_vibreur_CHANNEL, PWM_vibreur_FREQ_non_autorise);
                 Serial.printf("Utilisateur: %s -> accès non autorisé\n", users[j].getUserName().c_str());
-                // ✅ FIX: Utiliser j (index courant) au lieu de FID_scan (non initialisé ici)
+                //  Utiliser  (index courant) au lieu de FID_scan (non initialisé ici)
                 snprintf(payload, sizeof(payload), "{\"title\":\"❌ Utilisateur non autorisé\",\"message\":\"Utilisateur: %s -> accès non autorisé\"}", users[j].getUserName().c_str());
                 Envoi_MQTT("Serrure/notification", payload, false);
                 deverrouiallge(1);
@@ -416,7 +415,7 @@ void loop()
             Envoi_MQTT("Serrure/message_time/home_Assistant", payload, true);
           }
 
-          // ✅ FIX: Utiliser local_count pour la comparaison (déjà snapshottée)
+          // FIX: Utiliser local_count pour la comparaison (déjà snapshottée)
           if (local_count == 36)
           {
             pourcentage_batterie = etat_batterie(pourcentage_batterie);
@@ -429,7 +428,7 @@ void loop()
           i = (i < division_rep) ? i + 1 : 1;
         }
 
-        // ✅ FIX: Utiliser local_count pour la comparaison de dépassement
+        //  FIX: Utiliser local_count pour la comparaison de dépassement
         if (local_count > nbr_max_rep)
         {
           Serial.printf("count: %d dépasse seuil, réinitialisation.\n", local_count);
@@ -479,7 +478,7 @@ void loop()
     Serial.println("=== MODE CONFIGURATION ===");
     Serial.print("Combien de users RFID voulez-vous configurer ? (1 à " + String(MAX_USERS) + ") : ");
 
-    // ✅ FIX: Ne pas réutiliser count (variable partagée avec l'ISR) pour autre chose
+    // FIX: Ne pas réutiliser count (variable partagée avec l'ISR) pour autre chose
     // Utiliser une variable locale dédiée
     int nb_users_config = 0;
     while ((nb_users_config == 0) || (nb_users_config > MAX_USERS))
@@ -584,8 +583,7 @@ void loop()
       etat_actuel = Fonctionnement;
     }
   }
-  break; // ✅ FIX: break manquant — évite le fall-through vers default
-
+  break; 
   default:
     Serial.println("État inconnu.");
     break;
@@ -643,7 +641,7 @@ bool porte_ouverture(void)
   {
   case verrou_open:
   {
-    // ✅ FIX: Snapshot protégé de count
+    // FIX: Snapshot protégé de count
     portENTER_CRITICAL(&timerMux);
     int local_count = count;
     portEXIT_CRITICAL(&timerMux);
@@ -672,7 +670,7 @@ bool porte_ouverture(void)
     etat_verrou = verrou_open;
     Envoi_MQTT("Serrure/mode_verrou", Verrou_OP, true);
 
-    // ✅ FIX: Snapshot protégé + calcul modulo propre (plus de race condition)
+    // FIX: Snapshot protégé + calcul modulo propre (plus de race condition)
     portENTER_CRITICAL(&timerMux);
     int current_count = count;
     portEXIT_CRITICAL(&timerMux);
